@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COV Rekenmachine</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            color: #222;
+        }
+
+        header {
+            background-color: #333;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 28px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .card h2 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .input-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .input-group label {
+            font-weight: bold;
+            margin-bottom: 7px;
+        }
+
+        .input-group input {
+            padding: 10px;
+            border: 1px solid #bbb;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        button {
+            margin-top: 25px;
+            padding: 12px 20px;
+            background-color: #333;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #555;
+        }
+
+        .results {
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+        }
+
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .result-row:last-child {
+            border-bottom: none;
+        }
+
+        .result-label {
+            font-weight: bold;
+        }
+
+        .status {
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        .status.green {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status.red {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .timeline {
+            margin-top: 25px;
+            padding: 20px;
+            background-color: #f7f7f7;
+            border-radius: 8px;
+        }
+
+        .timeline h3 {
+            margin-top: 0;
+        }
+
+        .timeline-item {
+            padding: 10px 0;
+            border-left: 3px solid #333;
+            padding-left: 15px;
+            margin-left: 5px;
+        }
+
+        .main-result {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #f7f7f7;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .main-result .time {
+            font-size: 32px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        @media (max-width: 700px) {
+            .input-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .result-row {
+                flex-direction: column;
+                gap: 5px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>COV Rekenmachine</h1>
+</header>
+
+<div class="container">
+
+    <!-- ========================================= -->
+    <!-- BEREKENING 1: POI -> R1 -> R2 -->
+    <!-- ========================================= -->
+
+    <div class="card">
+        <h2>Afvoer: POI → R1</h2>
+
+        <div class="input-grid">
+
+            <div class="input-group">
+                <label for="poiR1Distance">
+                    Afstand POI → R1 (km)
+                </label>
+
+                <input
+                    type="number"
+                    id="poiR1Distance"
+                    min="0"
+                    step="0.5"
+                >
+            </div>
+
+            <div class="input-group">
+                <label for="evacSpeed">
+                    Snelheid afvoer (km/u)
+                </label>
+
+                <input
+                    type="number"
+                    id="evacSpeed"
+                    min="0.1"
+                    step="0.5"
+                    value="6"
+                >
+            </div>
+
+        </div>
+    </div>
+
+
+    <div class="card">
+        <h2>Transport: R1 → R2</h2>
+
+        <div class="input-grid">
+
+            <div class="input-group">
+                <label for="r1R2Distance">
+                    Afstand R1 → R2 (km)
+                </label>
+
+                <input
+                    type="number"
+                    id="r1R2Distance"
+                    min="0"
+                    step="0.5"
+                >
+            </div>
+
+            <div class="input-group">
+                <label for="transportSpeed">
+                    Snelheid transport (km/u)
+                </label>
+
+                <input
+                    type="number"
+                    id="transportSpeed"
+                    min="0.1"
+                    step="0.5"
+                    value="16"
+                >
+            </div>
+
+        </div>
+
+        <button onclick="calculate()">
+            Bereken tijdslijn
+        </button>
+
+        <div class="results">
+
+            <div class="result-row">
+                <span class="result-label">
+                    POI → R1:
+                </span>
+
+                <span id="resultPoiR1">
+                    -
+                </span>
+            </div>
+
+            <div class="result-row">
+                <span class="result-label">
+                    R1 → R2:
+                </span>
+
+                <span id="resultR1R2">
+                    -
+                </span>
+            </div>
+
+            <div class="result-row">
+                <span class="result-label">
+                    POI → R2 totaal:
+                </span>
+
+                <span id="resultTotal">
+                    -
+                </span>
+            </div>
+
+            <div class="result-row">
+                <span class="result-label">
+                    R1 binnen 1 uur:
+                </span>
+
+                <span id="resultR1Status" class="status">
+                    -
+                </span>
+            </div>
+
+            <div class="result-row">
+                <span class="result-label">
+                    R2 binnen 2 uur:
+                </span>
+
+                <span id="resultR2Status" class="status">
+                    -
+                </span>
+            </div>
+
+        </div>
+
+        <div class="timeline">
+
+            <h3>Tijdslijn</h3>
+
+            <div class="timeline-item">
+                POI → R1:
+                <span id="timelinePoiR1">-</span>
+            </div>
+
+            <div class="timeline-item">
+                R1 → R2:
+                <span id="timelineR1R2">-</span>
+            </div>
+
+            <div class="timeline-item">
+                Totaal POI → R2:
+                <span id="timelineTotal">-</span>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ========================================= -->
+    <!-- BEREKENING 2: VERPLAATSING R1 -->
+    <!-- ========================================= -->
+
+    <div class="card">
+
+        <h2>Verplaatsing R1</h2>
+
+        <div class="input-grid">
+
+            <div class="input-group">
+                <label for="arrivalTime">
+                    Gewenste aankomsttijd
+                </label>
+
+                <input
+                    type="time"
+                    id="arrivalTime"
+                    value="10:00"
+                >
+            </div>
+
+
+            <div class="input-group">
+                <label for="movementSpeed">
+                    Snelheid van verplaatsing (km/u)
+                </label>
+
+                <input
+                    type="number"
+                    id="movementSpeed"
+                    min="0.1"
+                    step="0.1"
+                    value="40"
+                >
+            </div>
+
+
+            <div class="input-group">
+                <label for="movementDistance">
+                    Afstand van de verplaatsing (km)
+                </label>
+
+                <input
+                    type="number"
+                    id="movementDistance"
+                    min="0"
+                    step="0.1"
+                    placeholder="Bijvoorbeeld 40"
+                >
+            </div>
+
+
+            <div class="input-group">
+                <label for="setupTime">
+                    Tijd voor opbouw (minuten)
+                </label>
+
+                <input
+                    type="number"
+                    id="setupTime"
+                    min="0"
+                    step="1"
+                    placeholder="Bijvoorbeeld 30"
+                >
+            </div>
+
+
+            <div class="input-group">
+                <label for="teardownTime">
+                    Tijd van afbouw (minuten)
+                </label>
+
+                <input
+                    type="number"
+                    id="teardownTime"
+                    min="0"
+                    step="1"
+                    placeholder="Bijvoorbeeld 30"
+                >
+            </div>
+
+        </div>
+
+
+        <button onclick="calculateMovement()">
+            Bereken sluitingstijd R1
+        </button>
+
+
+        <div class="main-result">
+
+            <div>
+                R1 moet uiterlijk sluiten/vertrekken om:
+            </div>
+
+            <div class="time" id="departureTime">
+                -
+            </div>
+
+        </div>
+
+
+        <div class="results">
+
+            <div class="result-row">
+                <span class="result-label">
+                    Reistijd:
+                </span>
+
+                <span id="movementTravelTime">
+                    -
+                </span>
+            </div>
+
+            <div class="result-row">
+                <span class="result-label">
+                    Afbouwtijd:
+                </span>
+
+                <span id="movementTeardownTime">
+                    -
+                </span>
+            </div>
+
+            <div class="result-row">
+                <span class="result-label">
+                    Opbouwtijd:
+                </span>
+
+                <span id="movementSetupTime">
+                    -
+                </span>
+            </div>
+
+            <div class="result-row">
+                <span class="result-label">
+                    Totale benodigde tijd:
+                </span>
+
+                <span id="movementTotalTime">
+                    -
+                </span>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+    // =========================================
+    // BEREKENING 1: POI -> R1 -> R2
+    // =========================================
+
+    function calculate() {
+
+        const poiR1Distance =
+            parseFloat(document.getElementById("poiR1Distance").value);
+
+        const evacSpeed =
+            parseFloat(document.getElementById("evacSpeed").value);
+
+        const r1R2Distance =
+            parseFloat(document.getElementById("r1R2Distance").value);
+
+        const transportSpeed =
+            parseFloat(document.getElementById("transportSpeed").value);
+
+
+        // Controle of alle waarden zijn ingevuld
+
+        if (
+            isNaN(poiR1Distance) ||
+            isNaN(evacSpeed) ||
+            isNaN(r1R2Distance) ||
+            isNaN(transportSpeed) ||
+            evacSpeed <= 0 ||
+            transportSpeed <= 0
+        ) {
+            alert("Vul alle velden correct in.");
+            return;
+        }
+
+
+        // Bereken tijden in minuten
+
+        const timePoiR1 =
+            (poiR1Distance / evacSpeed) * 60;
+
+        const timeR1R2 =
+            (r1R2Distance / transportSpeed) * 60;
+
+        const totalTime =
+            timePoiR1 + timeR1R2;
+
+
+        // Controle tijdslimieten
+
+        const r1OK =
+            timePoiR1 <= 60;
+
+        const r2OK =
+            totalTime <= 120;
+
+
+        // Resultaten tonen
+
+        document.getElementById("resultPoiR1").textContent =
+            formatMinutes(timePoiR1);
+
+        document.getElementById("resultR1R2").textContent =
+            formatMinutes(timeR1R2);
+
+        document.getElementById("resultTotal").textContent =
+            formatMinutes(totalTime);
+
+
+        // R1 status
+
+        const r1Status =
+            document.getElementById("resultR1Status");
+
+        r1Status.textContent =
+            r1OK ? "Ja" : "Nee";
+
+        r1Status.className =
+            "status " + (r1OK ? "green" : "red");
+
+
+        // R2 status
+
+        const r2Status =
+            document.getElementById("resultR2Status");
+
+        r2Status.textContent =
+            r2OK ? "Ja" : "Nee";
+
+        r2Status.className =
+            "status " + (r2OK ? "green" : "red");
+
+
+        // Tijdslijn
+
+        document.getElementById("timelinePoiR1").textContent =
+            formatMinutes(timePoiR1);
+
+        document.getElementById("timelineR1R2").textContent =
+            formatMinutes(timeR1R2);
+
+        document.getElementById("timelineTotal").textContent =
+            formatMinutes(totalTime);
+    }
+
+
+    // =========================================
+    // BEREKENING 2: VERPLAATSING R1
+    // =========================================
+
+    function calculateMovement() {
+
+        const arrivalTime =
+            document.getElementById("arrivalTime").value;
+
+        const movementSpeed =
+            parseFloat(document.getElementById("movementSpeed").value);
+
+        const movementDistance =
+            parseFloat(document.getElementById("movementDistance").value);
+
+        const teardownTime =
+            parseFloat(document.getElementById("teardownTime").value);
+
+        const setupTime =
+            parseFloat(document.getElementById("setupTime").value);
+
+
+        // Controle invoer
+
+        if (
+            !arrivalTime ||
+            isNaN(movementSpeed) ||
+            isNaN(movementDistance) ||
+            isNaN(teardownTime) ||
+            isNaN(setupTime) ||
+            movementSpeed <= 0 ||
+            movementDistance < 0 ||
+            teardownTime < 0 ||
+            setupTime < 0
+        ) {
+            alert("Vul alle velden correct in.");
+            return;
+        }
+
+
+        // Reistijd berekenen
+
+        const travelTime =
+            (movementDistance / movementSpeed) * 60;
+
+
+        // Totale benodigde tijd
+
+        const totalMovementTime =
+            travelTime + teardownTime + setupTime;
+
+
+        // Aankomsttijd omzetten naar minuten vanaf 00:00
+
+        const [hours, minutes] =
+            arrivalTime.split(":").map(Number);
+
+        let arrivalMinutes =
+            hours * 60 + minutes;
+
+
+        // Vertrektijd berekenen
+
+        let departureMinutes =
+            arrivalMinutes - totalMovementTime;
+
+
+        // Rekening houden met een verplaatsing over middernacht
+
+        departureMinutes =
+            ((departureMinutes % 1440) + 1440) % 1440;
+
+
+        // Uren en minuten bepalen
+
+        const departureHours =
+            Math.floor(departureMinutes / 60);
+
+        const departureMinutesPart =
+            Math.round(departureMinutes % 60);
+
+
+        // Tijd netjes formatteren
+
+        const formattedHours =
+            String(departureHours).padStart(2, "0");
+
+        const formattedMinutes =
+            String(departureMinutesPart).padStart(2, "0");
+
+
+        const departureTime =
+            formattedHours + ":" + formattedMinutes;
+
+
+        // Resultaat tonen
+
+        document.getElementById("departureTime").textContent =
+            departureTime;
+
+
+        document.getElementById("movementTravelTime").textContent =
+            formatMinutes(travelTime);
+
+        document.getElementById("movementTeardownTime").textContent =
+            teardownTime + " min";
+
+        document.getElementById("movementSetupTime").textContent =
+            setupTime + " min";
+
+        document.getElementById("movementTotalTime").textContent =
+            formatMinutes(totalMovementTime);
+    }
+
+
+    // =========================================
+    // TIJD WEERGEVEN
+    // =========================================
+
+    function formatMinutes(minutes) {
+
+        const roundedMinutes =
+            Math.round(minutes);
+
+        const hours =
+            Math.floor(roundedMinutes / 60);
+
+        const remainingMinutes =
+            roundedMinutes % 60;
+
+
+        if (hours === 0) {
+            return remainingMinutes + " min";
+        }
+
+        if (remainingMinutes === 0) {
+            return hours + " uur";
+        }
+
+        return hours + " uur " +
+               remainingMinutes + " min";
+    }
+
+</script>
+
+</body>
+</html>
